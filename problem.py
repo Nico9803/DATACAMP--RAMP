@@ -19,9 +19,8 @@ class Score(rw.score_types.BaseScoreType):
     minimum = 0.0
     maximum = float('inf')
 
-    def __init__(self, name='ONRMSE', precision=2):
+    def __init__(self, name='RMSE'):
         self.name = name
-        self.precision = precision
 
     def __call__(self, y_true, y_pred):
         on_y_true = np.array([t for y in y_true for t in y if t != 0])
@@ -54,7 +53,7 @@ def get_train_data(path='.'):
 
 
 def get_test_data(path='.'):
-    return _get_data(path, "test")
+    return _get_data(path, split="test")
 
 
 def get_cv(X, y):
