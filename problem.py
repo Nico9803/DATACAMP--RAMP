@@ -6,7 +6,7 @@ import pandas as pd
 import rampwf as rw
 from sklearn.model_selection import StratifiedGroupKFold
 
-problem_title = 'Image reconstruction'
+problem_title = 'picture_reconstruction'
 
 _NB_CHANNELS = 1
 
