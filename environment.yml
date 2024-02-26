@@ -1,0 +1,11 @@
+name: ramp-picture_reconstruction
+channels:
+  - defaults
+dependencies:
+  - pip
+  - numpy
+  - scikit-learn>=0.22
+  - pandas
+  - matplotlib
+  - pip:
+    - https://github.com/Nico9803/picture_reconstruction/new/main/data/data.zip
