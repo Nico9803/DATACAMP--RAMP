@@ -8,4 +8,4 @@ dependencies:
   - pandas
   - matplotlib
   - pip:
-    - https://github.com/Nico9803/picture_reconstruction/new/main/data/data.zip
+    - https://github.com/Nico9803/picture_reconstruction/tree/main/data/data.zip
