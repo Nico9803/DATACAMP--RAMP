@@ -63,7 +63,7 @@ def get_data(path="./datas/Dataset", split='Train'):
             print("y", img.shape)
             data_y.append(img)
         counter += 1
-        if counter >= 10:
+        if counter >= 25000:
             break
     return data_x, data_y
 
