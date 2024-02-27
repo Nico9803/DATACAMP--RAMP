@@ -1,5 +1,8 @@
 import os
 import pickle
+from pathlib import Path
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 import numpy as np
 import pandas as pd
@@ -39,13 +42,30 @@ score_types = [
 ]
 
 
-def _get_data(path='.', split='train'):
-    data_path = os.path.join(path, "data", split + ".csv")
-    with open(os.path.join(data_path, 'X.pkl'), 'rb') as f:
-        X = pickle.load(f)
-    with open(os.path.join(data_path, 'y.pkl'), 'rb') as f:
-        y = pickle.load(f)
-    return X, y
+def get_data(path="./datas/Dataset", split='Train'):
+    assert split in ['Train', 'Test'], 'split must be either Train or Test'
+    photos_path = Path(path)
+    file_list = os.listdir(photos_path)
+    counter = 0
+    data_x = []
+    data_y = []
+    for f in file_list:  # iterate through the files
+        fpath = os.path.join(photos_path, f)
+        fpath = fpath.replace('\\', '/')
+        fpath = fpath.replace('._', '')
+        # print(fpath)
+        if f.endswith('_hi.jpg'):
+            img = mpimg.imread(fpath)
+            print("x", img.shape)
+            data_x.append(img)
+        elif f.endswith('_lo.jpg'):
+            img = mpimg.imread(fpath)
+            print("y", img.shape)
+            data_y.append(img)
+        counter += 1
+        if counter >= 10:
+            break
+    return data_x, data_y
 
 
 def get_train_data(path='.'):
