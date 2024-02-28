@@ -42,7 +42,7 @@ score_types = [
 ]
 
 
-def _get_data(path="./datas", split='Train'):
+def _get_data(path="./picture_reconstruction_dataset", split='Train'):
     assert split in ['Train', 'Test'], 'split must be either Train or Test'
     path = os.path.join(path, split)
     photos_path = Path(path)
@@ -69,11 +69,11 @@ def _get_data(path="./datas", split='Train'):
     return data_x, data_y
 
 
-def get_train_data(path='.'):
+def get_train_data(path='./picture_reconstruction_dataset'):
     return _get_data(path, split="Train")
 
 
-def get_test_data(path='.'):
+def get_test_data(path='./picture_reconstruction_dataset'):
     return _get_data(path, split="Test")
 
 
