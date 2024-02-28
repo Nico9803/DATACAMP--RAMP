@@ -2,3 +2,5 @@ scikit-learn
 ramp
 gdown
 matplotlib
+scipy
+numpy
