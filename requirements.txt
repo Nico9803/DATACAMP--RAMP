@@ -4,3 +4,6 @@ gdown
 matplotlib
 scipy
 numpy
+pandas
+ramp-workflow
+ramp-utils
