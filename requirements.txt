@@ -8,3 +8,5 @@ numpy
 ramp-workflow
 torch
 torchvision
+ramp-utils
+
