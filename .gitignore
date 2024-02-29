@@ -1,0 +1,7 @@
+picture_reconstruction_dataset
+data
+.venv
+__pycache__
+data.zip
+
+

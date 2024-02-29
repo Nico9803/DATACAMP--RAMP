@@ -3,7 +3,10 @@ ramp
 gdown
 matplotlib
 scipy
-numpy
 pandas
+numpy
 ramp-workflow
+torch
+torchvision
 ramp-utils
+

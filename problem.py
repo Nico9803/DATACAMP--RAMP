@@ -22,15 +22,17 @@ class Score(rw.score_types.BaseScoreType):
     minimum = 0.0
     maximum = float('inf')
 
-    def __init__(self, name='RMSE'):
+    def __init__(self, name='RMSE', precision=3):
         self.name = name
+        self.precision = precision
 
     def __call__(self, y_true, y_pred):
+        
         on_y_true = np.array([t for y in y_true for t in y if t != 0])
         on_y_pred = np.array([p for y_hat, y in zip(y_pred, y_true) for p, t in zip(y_hat, y) if t != 0])
 
         if (on_y_pred < 0).any():
-            return self.worst
+            return self.worst 
 
         return np.sqrt(np.mean(np.square(on_y_true - on_y_pred)))
 
@@ -38,7 +40,7 @@ class Score(rw.score_types.BaseScoreType):
 workflow = rw.workflows.Regressor()
 Predictions = rw.prediction_types.make_regression(list(range(_NB_CHANNELS)))
 score_types = [
-    Score()
+    Score(precision=4)
 ]
 
 
