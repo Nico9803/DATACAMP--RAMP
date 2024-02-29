@@ -2,6 +2,11 @@
 import gdown
 import os
 import subprocess
+
+import argparse
+
+CHALLENGE_NAME = 'picture_reconstruction'
+
 def data_fetch():
     """
 
@@ -19,4 +24,10 @@ def data_fetch():
     subprocess.call(['tar', '-zxf', 'Train.tgz'])
     subprocess.call(['tar', '-zxf', 'Test.tgz'])
     os.chdir('..')
-    return
+    return 0
+
+if __name__ == "__main__":
+    
+    data_fetch()
+    
+    print('Download complete')
