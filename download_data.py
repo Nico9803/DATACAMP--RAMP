@@ -17,17 +17,25 @@ def data_fetch():
     -------
     None
     """
-    
-    url = "https://drive.google.com/drive/folders/1rwiMe6sSarsf51fMp_Rh_hgeTOI5WzVn"
+    # gdown.download_folder(url)
+    # os.chdir('picture_reconstruction_dataset')
+    # subprocess.call(['tar', '-zxf', 'Train.tgz'])
+    # subprocess.call(['tar', '-zxf', 'Test.tgz'])
+    # os.chdir('..')
+    return 
+
+def data_load():
+    print("Data loading")
+    url = "https://drive.google.com/drive/folders/1TqEZjRlDm14QtC1cxFRmqGtzXmO6HBTP"
     gdown.download_folder(url)
-    os.chdir('picture_reconstruction_dataset')
-    subprocess.call(['tar', '-zxf', 'Train.tgz'])
-    subprocess.call(['tar', '-zxf', 'Test.tgz'])
+    os.chdir('data')
+    subprocess.call(['tar', '-zxf', 'data.tgz'])
     os.chdir('..')
-    return 0
+    print("Unzip completed")
+    return
 
 if __name__ == "__main__":
     
-    data_fetch()
+    #data_fetch()
     
-    print('Download complete')
+    print('Done')
