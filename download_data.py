@@ -29,7 +29,7 @@ def data_load():
     url = "https://drive.google.com/drive/folders/1TqEZjRlDm14QtC1cxFRmqGtzXmO6HBTP"
     gdown.download_folder(url)
     # os.chdir('data')
-    subprocess.call(['tar', '-zxf', 'data.tgz'])
+    subprocess.call(['tar', '-zxf', 'data/data.tgz'])
     # os.chdir('..')
     print("Unzip completed")
     return
