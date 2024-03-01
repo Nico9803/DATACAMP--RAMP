@@ -8,11 +8,12 @@ import matplotlib.image as mpimg
 import numpy as np
 import pandas as pd
 import rampwf as rw
-from sklearn.model_selection import StratifiedGroupKFold
+from sklearn.model_selection import KFold
+from skimage.metrics import structural_similarity as ssim
 
 problem_title = 'picture_reconstruction'
 
-_NB_CHANNELS = 1
+_NB_CHANNELS = 128*128
 
 
 class Score(rw.score_types.BaseScoreType):
@@ -29,71 +30,74 @@ class Score(rw.score_types.BaseScoreType):
 
     def __call__(self, y_true, y_pred):
         
-        on_y_true = np.array([t for y in y_true for t in y if t != 0])
-        on_y_pred = np.array([p for y_hat, y in zip(y_pred, y_true) for p, t in zip(y_hat, y) if t != 0])
+        ## -- Okay, this is no longer necessary, as we are using the whole images.
+        # on_y_true = np.array([t for y in y_true for t in y if t != 0])
+        # on_y_pred = np.array([p for y_hat, y in zip(y_pred, y_true) for p, t in zip(y_hat, y) if t != 0])
 
-        if (on_y_pred < 0).any():
-            return self.worst 
+        # if (on_y_pred < 0).any():
+        #     return self.worst 
+        return np.sqrt(np.mean(np.square(y_true - y_pred)))
 
-        return np.sqrt(np.mean(np.square(on_y_true - on_y_pred)))
+class SSI_Score(rw.score_types.BaseScoreType):
+    """Structural Similarity Index. Measures the SSIM
+     between the true and predicted images."""
 
+    is_lower_the_better = False
+    minimum = -1.0
+    maximum = 1.0
+
+    def __init__(self, name='SSIM', precision=3):
+        self.name = name
+        self.precision = precision
+
+    def __call__(self, y_true, y_pred):
+        y_true = y_true.reshape(-1, 128, 128)
+        y_pred = y_pred.reshape(-1, 128, 128)
+        
+        return np.mean([ssim(t, p, data_range=t.max()-t.min(), full=False, win_size=11) for t, p in zip(y_true, y_pred)])
 
 workflow = rw.workflows.Regressor()
 Predictions = rw.prediction_types.make_regression(list(range(_NB_CHANNELS)))
 score_types = [
-    Score(precision=4)
+    Score(precision=4),
+    SSI_Score(precision=4)
 ]
 
 
 def _get_data(path="./data", split='train'):
-    # Load data from npy and csv files.
-    # Data: raw images .npy format
-    # Labels: .csv file
-    #
-    # returns X (input) and y (output) arrays
 
     assert split in ['train', 'test'], 'split must be either train or test'
- 
-    X = np.load(os.path.join(path, "data", "X" + split + ".npy"))
-    y = np.load(os.path.join(path, "data", "Y" + split + ".npy"))
 
-    return X, y
-
-# def _get_data(path="./picture_reconstruction_dataset", split='Train'):
-#     assert split in ['Train', 'Test'], 'split must be either Train or Test'
-#     path = os.path.join(path, split)
-#     photos_path = Path(path)
-#     file_list = os.listdir(photos_path)
-#     counter = 0
-#     data_x = []
-#     data_y = []
-#     for f in file_list:  # iterate through the files
-#         fpath = os.path.join(photos_path, f)
-#         fpath = fpath.replace('\\', '/')
-#         fpath = fpath.replace('._', '')
-#         if fpath.endswith('_hi.jpg'):
-#             # get the high resolution image
-#             img = mpimg.imread(fpath)
-#             data_y.append(img)
-#             # get the corresponding low resolution image
-#             fpath = fpath.replace('_hi.jpg', '_lo.jpg')
-#             fpath = fpath.replace('H', 'L')
-#             img = mpimg.imread(fpath)
-#             data_x.append(img)
-#         counter += 1
-#         if counter >= 25000:
-#             break
-#     return data_x, data_y
+    ## Low resolution images
+    data_x = np.load(os.path.join(path, f'X{split}.npy'))
+    
+    ## High resolution images
+    data_y = np.load(os.path.join(path, f'Y{split}.npy'))
+    
+    ## Preprocessing COMMENT BETWEEN ----- ONCE FINAL DATA ARE AVAILABLE
+    # -------------------------------------
+    
+    # data_x = data_x[:, :, :, 0]
+    # data_x= data_x/255
+    
+    # data_y = data_y/255
+    # data_y = np.dot(data_y, [0.2989, 0.5870, 0.1140]) ## Convert to grayscale
+    
+    # -------------------------------------
+    _, H_y, W_y  = data_y.shape
+    data_y = data_y.reshape(-1, H_y*W_y ) ## [N, 128*128], for the score function
+    
+    return data_x, data_y ## [N, 64, 64], [N, 128*128]
 
 
-def get_train_data(path='./data'):
+def get_train_data(path='./data/public'):
     return _get_data(path, split="train")
 
 
-def get_test_data(path='./data'):
+def get_test_data(path='./data/public'):
     return _get_data(path, split="test")
 
 
 def get_cv(X, y):
-    cv = StratifiedGroupKFold(n_splits=2, shuffle=True, random_state=2)
+    cv = KFold(n_splits=3, shuffle=True, random_state=2)
     return cv.split(X, y)

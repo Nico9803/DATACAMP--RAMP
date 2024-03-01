@@ -5,8 +5,10 @@ matplotlib
 scipy
 pandas
 numpy
+ramp-utils
 ramp-workflow
+scikit-image
 torch
 torchvision
-ramp-utils
+
 
