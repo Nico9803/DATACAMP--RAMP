@@ -1,5 +1,6 @@
 import os
 import pickle
+import zipfile
 from pathlib import Path
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -44,39 +45,53 @@ score_types = [
 ]
 
 
-def _get_data(path="./picture_reconstruction_dataset", split='Train'):
-    assert split in ['Train', 'Test'], 'split must be either Train or Test'
-    path = os.path.join(path, split)
-    photos_path = Path(path)
-    file_list = os.listdir(photos_path)
-    counter = 0
-    data_x = []
-    data_y = []
-    for f in file_list:  # iterate through the files
-        fpath = os.path.join(photos_path, f)
-        fpath = fpath.replace('\\', '/')
-        fpath = fpath.replace('._', '')
-        if fpath.endswith('_hi.jpg'):
-            # get the high resolution image
-            img = mpimg.imread(fpath)
-            data_x.append(img)
-            # get the corresponding low resolution image
-            fpath = fpath.replace('_hi.jpg', '_lo.jpg')
-            fpath = fpath.replace('H', 'L')
-            img = mpimg.imread(fpath)
-            data_y.append(img)
-        counter += 1
-        if counter >= 25000:
-            break
-    return data_x, data_y
+def _get_data(path="./data", split='train'):
+    # Load data from npy and csv files.
+    # Data: raw images .npy format
+    # Labels: .csv file
+    #
+    # returns X (input) and y (output) arrays
+
+    assert split in ['train', 'test'], 'split must be either train or test'
+ 
+    X = np.load(os.path.join(path, "data", "X" + split + ".npy"))
+    y = np.load(os.path.join(path, "data", "Y" + split + ".npy"))
+
+    return X, y
+
+# def _get_data(path="./picture_reconstruction_dataset", split='Train'):
+#     assert split in ['Train', 'Test'], 'split must be either Train or Test'
+#     path = os.path.join(path, split)
+#     photos_path = Path(path)
+#     file_list = os.listdir(photos_path)
+#     counter = 0
+#     data_x = []
+#     data_y = []
+#     for f in file_list:  # iterate through the files
+#         fpath = os.path.join(photos_path, f)
+#         fpath = fpath.replace('\\', '/')
+#         fpath = fpath.replace('._', '')
+#         if fpath.endswith('_hi.jpg'):
+#             # get the high resolution image
+#             img = mpimg.imread(fpath)
+#             data_y.append(img)
+#             # get the corresponding low resolution image
+#             fpath = fpath.replace('_hi.jpg', '_lo.jpg')
+#             fpath = fpath.replace('H', 'L')
+#             img = mpimg.imread(fpath)
+#             data_x.append(img)
+#         counter += 1
+#         if counter >= 25000:
+#             break
+#     return data_x, data_y
 
 
-def get_train_data(path='./picture_reconstruction_dataset'):
-    return _get_data(path, split="Train")
+def get_train_data(path='./data'):
+    return _get_data(path, split="train")
 
 
-def get_test_data(path='./picture_reconstruction_dataset'):
-    return _get_data(path, split="Test")
+def get_test_data(path='./data'):
+    return _get_data(path, split="test")
 
 
 def get_cv(X, y):
