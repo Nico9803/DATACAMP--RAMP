@@ -9,10 +9,11 @@ import numpy as np
 import pandas as pd
 import rampwf as rw
 from sklearn.model_selection import KFold
+from skimage.metrics import structural_similarity as ssim
 
 problem_title = 'picture_reconstruction'
 
-_NB_CHANNELS = 320*320
+_NB_CHANNELS = 128*128
 
 
 class Score(rw.score_types.BaseScoreType):
@@ -37,11 +38,29 @@ class Score(rw.score_types.BaseScoreType):
         #     return self.worst 
         return np.sqrt(np.mean(np.square(y_true - y_pred)))
 
+class SSI_Score(rw.score_types.BaseScoreType):
+    """Structural Similarity Index. Measures the SSIM
+     between the true and predicted images."""
+
+    is_lower_the_better = False
+    minimum = -1.0
+    maximum = 1.0
+
+    def __init__(self, name='SSIM', precision=3):
+        self.name = name
+        self.precision = precision
+
+    def __call__(self, y_true, y_pred):
+        y_true = y_true.reshape(-1, 128, 128)
+        y_pred = y_pred.reshape(-1, 128, 128)
+        
+        return np.mean([ssim(t, p, data_range=t.max()-t.min(), full=False, win_size=11) for t, p in zip(y_true, y_pred)])
 
 workflow = rw.workflows.Regressor()
 Predictions = rw.prediction_types.make_regression(list(range(_NB_CHANNELS)))
 score_types = [
-    Score(precision=4)
+    Score(precision=4),
+    SSI_Score(precision=4)
 ]
 
 
@@ -56,28 +75,18 @@ def _get_data(path="./data", split='train'):
     
     ## Preprocessing COMMENT BETWEEN ----- ONCE FINAL DATA ARE AVAILABLE
     # -------------------------------------
-    '''
-    In :
-    X.shape : [N, 64, 64, 3]
-    Y.shape : [N, 320, 320, 3]
-    dtype : uint8, values in [0, 255]
     
-    Out :
-    X : [N, 64, 64]
-    Y : [N, 320, 320]
-    dtype : float32, values in [0, 1]
-    '''
+    # data_x = data_x[:, :, :, 0]
+    # data_x= data_x/255
     
-    data_x = data_x[:, :, :, 0]
-    data_x= data_x/255
-    
-    data_y = data_y/255
-    data_y = np.dot(data_y, [0.2989, 0.5870, 0.1140]) ## Convert to grayscale
+    # data_y = data_y/255
+    # data_y = np.dot(data_y, [0.2989, 0.5870, 0.1140]) ## Convert to grayscale
     
     # -------------------------------------
-    data_y = data_y.reshape(-1, 320*320) ## [N, 320*320], for the score function
+    _, H_y, W_y  = data_y.shape
+    data_y = data_y.reshape(-1, H_y*W_y ) ## [N, 128*128], for the score function
     
-    return data_x, data_y ## [N, 64, 64], [N, 320*320]
+    return data_x, data_y ## [N, 64, 64], [N, 128*128]
 
 
 def get_train_data(path='./data/public'):
@@ -89,5 +98,5 @@ def get_test_data(path='./data/public'):
 
 
 def get_cv(X, y):
-    cv = KFold(n_splits=5, shuffle=True, random_state=2)
+    cv = KFold(n_splits=3, shuffle=True, random_state=2)
     return cv.split(X, y)
