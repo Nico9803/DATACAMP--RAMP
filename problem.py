@@ -7,11 +7,11 @@ import matplotlib.image as mpimg
 import numpy as np
 import pandas as pd
 import rampwf as rw
-from sklearn.model_selection import StratifiedGroupKFold
+from sklearn.model_selection import KFold
 
 problem_title = 'picture_reconstruction'
 
-_NB_CHANNELS = 1
+_NB_CHANNELS = 320*320
 
 
 class Score(rw.score_types.BaseScoreType):
@@ -28,13 +28,13 @@ class Score(rw.score_types.BaseScoreType):
 
     def __call__(self, y_true, y_pred):
         
-        on_y_true = np.array([t for y in y_true for t in y if t != 0])
-        on_y_pred = np.array([p for y_hat, y in zip(y_pred, y_true) for p, t in zip(y_hat, y) if t != 0])
+        ## -- Okay, this is no longer necessary, as we are using the whole images.
+        # on_y_true = np.array([t for y in y_true for t in y if t != 0])
+        # on_y_pred = np.array([p for y_hat, y in zip(y_pred, y_true) for p, t in zip(y_hat, y) if t != 0])
 
-        if (on_y_pred < 0).any():
-            return self.worst 
-
-        return np.sqrt(np.mean(np.square(on_y_true - on_y_pred)))
+        # if (on_y_pred < 0).any():
+        #     return self.worst 
+        return np.sqrt(np.mean(np.square(y_true - y_pred)))
 
 
 workflow = rw.workflows.Regressor()
@@ -44,41 +44,49 @@ score_types = [
 ]
 
 
-def _get_data(path="./picture_reconstruction_dataset", split='Train'):
-    assert split in ['Train', 'Test'], 'split must be either Train or Test'
-    path = os.path.join(path, split)
-    photos_path = Path(path)
-    file_list = os.listdir(photos_path)
-    counter = 0
-    data_x = []
-    data_y = []
-    for f in file_list:  # iterate through the files
-        fpath = os.path.join(photos_path, f)
-        fpath = fpath.replace('\\', '/')
-        fpath = fpath.replace('._', '')
-        if fpath.endswith('_hi.jpg'):
-            # get the high resolution image
-            img = mpimg.imread(fpath)
-            data_x.append(img)
-            # get the corresponding low resolution image
-            fpath = fpath.replace('_hi.jpg', '_lo.jpg')
-            fpath = fpath.replace('H', 'L')
-            img = mpimg.imread(fpath)
-            data_y.append(img)
-        counter += 1
-        if counter >= 25000:
-            break
-    return data_x, data_y
+def _get_data(path="./data", split='train'):
+    assert split in ['train', 'test'], 'split must be either train or test'
+
+    ## Low resolution images
+    data_x = np.load(os.path.join(path, f'X{split}.npy'))
+    
+    ## High resolution images
+    data_y = np.load(os.path.join(path, f'Y{split}.npy'))
+    
+    ## Preprocessing COMMENT BETWEEN ----- ONCE FINAL DATA ARE AVAILABLE
+    # -------------------------------------
+    '''
+    In :
+    X.shape : [N, 64, 64, 3]
+    Y.shape : [N, 320, 320, 3]
+    dtype : uint8, values in [0, 255]
+    
+    Out :
+    X : [N, 64, 64]
+    Y : [N, 320, 320]
+    dtype : float32, values in [0, 1]
+    '''
+    
+    data_x = data_x[:, :, :, 0]
+    data_x= data_x/255
+    
+    data_y = data_y/255
+    data_y = np.dot(data_y, [0.2989, 0.5870, 0.1140]) ## Convert to grayscale
+    
+    # -------------------------------------
+    data_y = data_y.reshape(-1, 320*320) ## [N, 320*320], for the score function
+    
+    return data_x, data_y ## [N, 64, 64], [N, 320*320]
 
 
-def get_train_data(path='./picture_reconstruction_dataset'):
-    return _get_data(path, split="Train")
+def get_train_data(path='./data/public'):
+    return _get_data(path, split="train")
 
 
-def get_test_data(path='./picture_reconstruction_dataset'):
-    return _get_data(path, split="Test")
+def get_test_data(path='./data/public'):
+    return _get_data(path, split="test")
 
 
 def get_cv(X, y):
-    cv = StratifiedGroupKFold(n_splits=2, shuffle=True, random_state=2)
+    cv = KFold(n_splits=5, shuffle=True, random_state=2)
     return cv.split(X, y)
