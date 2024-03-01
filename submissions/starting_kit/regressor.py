@@ -47,7 +47,7 @@ class Regressor(BaseEstimator):
         criterion = nn.MSELoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
         
-        ## convert Y to grayscale (Non necessary if Y is already grayscale)
+        ## convert Y to grayscale (Not necessary if Y is already grayscale)
         # transform_Y = transforms.Compose([transforms.Grayscale(num_output_channels=1)])
         # y = transform_Y(y.permute(0,3,1,2)).view(-1, 320, 320) ## [B, 320, 320]
         
