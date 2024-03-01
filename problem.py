@@ -65,6 +65,7 @@ score_types = [
 
 
 def _get_data(path="./data", split='train'):
+
     assert split in ['train', 'test'], 'split must be either train or test'
 
     ## Low resolution images
