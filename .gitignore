@@ -3,5 +3,12 @@ data
 .venv
 __pycache__
 data.zip
+working_directory
+__MACOSX
+data_formatting
+draft
+problem0
+._data
+
 
 
