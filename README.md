@@ -1,7 +1,7 @@
 # RAMP starting_kit on picture reconstruction
 Pictures reconstructions from low level quality pictures
 
-Authors : Alexia Allal, Gabriel Buffet, Stéphane Dumas, Nicolas Giraudet de Boudemange, Sébastien Mandela Yvon, Jérémy Pinault from IPP/M2DS 
+Authors : Alexia Allal, Gabriel Buffet, Jérémy Pinault, Nicolas Giraudet de Boudemange, Sébastien Mandela Yvon, Stéphane Dumas, from IPP/M2DS 
 
 ## Getting started
 

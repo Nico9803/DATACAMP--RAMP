@@ -14,9 +14,5 @@ class Regressor():
         return
 
     def predict(self, X):
-        N, size = X.shape
-        return np.random.randint(0, 256, (N, self.target_size))
-
-    def predict_proba(self, X):
-        N, size = X.shape
-        return np.random.randint(0, 256, (N, self.target_size))
+        
+        return np.random.uniform(0,1, (X.shape[0],self.target_size) ) 
