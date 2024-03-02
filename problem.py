@@ -54,7 +54,11 @@ class SSI_Score(rw.score_types.BaseScoreType):
         y_true = y_true.reshape(-1, 128, 128)
         y_pred = y_pred.reshape(-1, 128, 128)
         
-        return np.mean([ssim(t, p, data_range=t.max()-t.min(), full=False, win_size=11) for t, p in zip(y_true, y_pred)])
+        with np.errstate(divide='ignore', invalid='ignore'):
+            ssim_scores = [ssim(t, p, data_range=t.max()-t.min(), full=False, win_size=13) for t, p in zip(y_true, y_pred)]
+        
+        ssim_scores = [s for s in ssim_scores if not np.isnan(s)]
+        return np.mean(ssim_scores)
 
 workflow = rw.workflows.Regressor()
 Predictions = rw.prediction_types.make_regression(list(range(_NB_CHANNELS)))
@@ -78,12 +82,13 @@ def _get_data(path="./data", split='train'):
     # -------------------------------------
     
     # data_x = data_x[:, :, :, 0]
-    # data_x= data_x/255
-    
-    # data_y = data_y/255
+   
     # data_y = np.dot(data_y, [0.2989, 0.5870, 0.1140]) ## Convert to grayscale
     
     # -------------------------------------
+    ## normalize to [0, 1]
+    data_x = data_x.astype(np.float32) / 255.0
+    data_y = data_y.astype(np.float32) / 255.0
     _, H_y, W_y  = data_y.shape
     data_y = data_y.reshape(-1, H_y*W_y ) ## [N, 128*128], for the score function
     
@@ -99,5 +104,5 @@ def get_test_data(path='./data/public'):
 
 
 def get_cv(X, y):
-    cv = KFold(n_splits=3, shuffle=True, random_state=2)
+    cv = KFold(n_splits=4, shuffle=True, random_state=2)
     return cv.split(X, y)
