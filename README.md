@@ -20,7 +20,7 @@ usage.
 
 ### Challenge description
 
-Get started with the [dedicated notebook](.ipynb)
+Get started with the [dedicated notebook](picture_reconstruction_starting_kit.ipynb)
 
 
 ### Test a submission
