@@ -30,12 +30,6 @@ class Score(rw.score_types.BaseScoreType):
 
     def __call__(self, y_true, y_pred):
         
-        ## -- Okay, this is no longer necessary, as we are using the whole images.
-        # on_y_true = np.array([t for y in y_true for t in y if t != 0])
-        # on_y_pred = np.array([p for y_hat, y in zip(y_pred, y_true) for p, t in zip(y_hat, y) if t != 0])
-
-        # if (on_y_pred < 0).any():
-        #     return self.worst 
         return np.sqrt(np.mean(np.square(y_true - y_pred)))
 
 class SSI_Score(rw.score_types.BaseScoreType):
@@ -78,15 +72,6 @@ def _get_data(path="./data", split='train'):
     ## High resolution images
     data_y = np.load(os.path.join(path, f'Y{split}.npy'))
     
-    ## Preprocessing COMMENT BETWEEN ----- ONCE FINAL DATA ARE AVAILABLE
-    # -------------------------------------
-    
-    # data_x = data_x[:, :, :, 0]
-   
-    # data_y = np.dot(data_y, [0.2989, 0.5870, 0.1140]) ## Convert to grayscale
-    
-    # -------------------------------------
-    ## normalize to [0, 1]
     data_x = data_x.astype(np.float32) / 255.0
     data_y = data_y.astype(np.float32) / 255.0
     _, H_y, W_y  = data_y.shape
