@@ -1,10 +1,18 @@
 name: ramp-picture_reconstruction
 channels:
-  - defaults
+  - pytorch
 dependencies:
   - pip
   - numpy
   - scikit-learn>=0.22
   - pandas
   - matplotlib
-
+  - jupyter
+  - seaborn
+  - scipy
+  - pytorch
+  - torchvision
+  - pytorch-cuda=11.8
+  - joblib
+  - transformers
+  - datasets
