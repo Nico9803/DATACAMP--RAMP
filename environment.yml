@@ -7,5 +7,4 @@ dependencies:
   - scikit-learn>=0.22
   - pandas
   - matplotlib
-  - pip:
-    - https://github.com/Nico9803/picture_reconstruction/tree/main/data/data.zip
+
